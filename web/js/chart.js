@@ -18,7 +18,7 @@ class FuturesTradingChart {
     this.candles = [];
     this.overlays = {};
     this.subpanel = "RSI"; // RSI, MACD, NONE
-    this.chartType = "CANDLE"; // CANDLE, LINE, AREA, HEIKIN
+    this.chartType = "CANDLE"; // CANDLE, LINE, AREA, HEIKIN, BAR
     this.timeframe = options.timeframe || "15m";
     this.symbol = options.symbol || "BTCUSDT";
 
@@ -30,12 +30,16 @@ class FuturesTradingChart {
     this.crosshair = null; // {x, y, price, time}
 
     // Active Drawing Tool
-    this.activeDrawingTool = "NONE"; // HORIZONTAL, TRENDLINE, BOX, NONE
+    this.activeDrawingTool = "NONE"; // HORIZONTAL, VERTICAL, TRENDLINE, BOX, NONE
     this.drawings = [];
     this.currentDrawing = null;
+    this.drawingsVisible = true;
 
     // Signal Target Overlay
     this.signalTargets = null; // {entry, tp1, tp2, sl, direction}
+    this.showTargets = true;
+    this.showEMA = true;
+    this.showBB = false;
 
     this.initCanvasDPI();
     this.bindEvents();
@@ -192,6 +196,30 @@ class FuturesTradingChart {
       ctx.strokeStyle = "#00e5ff";
       ctx.lineWidth = 2;
       ctx.stroke();
+    } else if (this.chartType === "BAR") {
+      // American OHLC Bar chart
+      viewCandles.forEach((c, idx) => {
+        const x = getX(idx);
+        const yOpen = getY(c.open);
+        const yClose = getY(c.close);
+        const yHigh = getY(c.high);
+        const yLow = getY(c.low);
+        const color = c.close >= c.open ? "#39ff88" : "#ff3158";
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        // Vertical High-Low
+        ctx.moveTo(x, yHigh);
+        ctx.lineTo(x, yLow);
+        // Left Open tick
+        ctx.moveTo(x - candleW/2, yOpen);
+        ctx.lineTo(x, yOpen);
+        // Right Close tick
+        ctx.moveTo(x, yClose);
+        ctx.lineTo(x + candleW/2, yClose);
+        ctx.stroke();
+      });
     } else {
       // Candlestick / Heikin Ashi
       viewCandles.forEach((c, idx) => {
@@ -221,11 +249,13 @@ class FuturesTradingChart {
     }
 
     // 4. Overlays (EMA 20, EMA 50)
-    this.renderOverlayLine(viewCandles, startIdx, 20, "#a855f7", getY, getX);
-    this.renderOverlayLine(viewCandles, startIdx, 50, "#00e5ff", getY, getX);
+    if (this.showEMA) {
+      this.renderOverlayLine(viewCandles, startIdx, 20, "#a855f7", getY, getX);
+      this.renderOverlayLine(viewCandles, startIdx, 50, "#00e5ff", getY, getX);
+    }
 
     // 5. Signal Levels Overlay (Entry, TP1, TP2, SL)
-    if (this.signalTargets) {
+    if (this.signalTargets && this.showTargets) {
       this.renderSignalLevels(ctx, chartW, getY);
     }
 
@@ -340,14 +370,35 @@ class FuturesTradingChart {
   }
 
   renderDrawings(ctx, chartW, getY, getX) {
+    if (!this.drawingsVisible) return;
     this.drawings.forEach(d => {
       ctx.strokeStyle = d.color || "#ffe600";
+      ctx.fillStyle = d.fillColor || "rgba(255, 230, 0, 0.12)";
       ctx.lineWidth = 1.8;
+      
       if (d.type === "HORIZONTAL") {
         const y = getY(d.price);
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(chartW, y);
+        ctx.stroke();
+      } else if (d.type === "VERTICAL") {
+        const x = d.x || (chartW / 2);
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, this.height * 0.68);
+        ctx.stroke();
+      } else if (d.type === "BOX") {
+        const y1 = getY(d.top);
+        const y2 = getY(d.bottom);
+        const x1 = 20;
+        const x2 = chartW - 20;
+        ctx.fillRect(x1, Math.min(y1, y2), x2 - x1, Math.abs(y2 - y1));
+        ctx.strokeRect(x1, Math.min(y1, y2), x2 - x1, Math.abs(y2 - y1));
+      } else if (d.type === "TRENDLINE") {
+        ctx.beginPath();
+        ctx.moveTo(d.x1, getY(d.p1));
+        ctx.lineTo(d.x2, getY(d.p2));
         ctx.stroke();
       }
     });

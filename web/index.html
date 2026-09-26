@@ -295,15 +295,36 @@
             <span style="color:var(--neon-green)">● AKTİF TARAMA</span>
           </div>
 
-          <div style="display:flex; gap:6px; margin-bottom:10px;">
+          <!-- Direction filters -->
+          <div style="display:flex; gap:6px; margin-bottom:8px;">
             <button class="asset-pill active" id="filterSigAll">Tümü</button>
             <button class="asset-pill" id="filterSigLong">Sadece LONG</button>
             <button class="asset-pill" id="filterSigShort">Sadece SHORT</button>
           </div>
 
+          <!-- Multi-attribute filters from Master Prompt: min score, risk/reward, market regime -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; background:rgba(0,0,0,0.3); padding:8px; border-radius:10px; margin-bottom:10px; font-size:10px;">
+            <div>
+              <span style="color:var(--text-muted);">Min Skor:</span>
+              <select id="filterMinScore" style="width:100%; background:#000; border:1px solid var(--border-subtle); color:white; padding:4px; border-radius:6px; font-size:10px;">
+                <option value="0">Tümü (0+)</option>
+                <option value="80" selected>80+ (Yüksek)</option>
+                <option value="85">85+ (Çok Yüksek)</option>
+              </select>
+            </div>
+            <div>
+              <span style="color:var(--text-muted);">Min Risk/Ödül:</span>
+              <select id="filterMinRR" style="width:100%; background:#000; border:1px solid var(--border-subtle); color:white; padding:4px; border-radius:6px; font-size:10px;">
+                <option value="0">Tümü</option>
+                <option value="2.0" selected>Min 1:2.0</option>
+                <option value="2.5">Min 1:2.5</option>
+              </select>
+            </div>
+          </div>
+
           <button class="btn btn-cyan" id="btnScanNewSignal">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
-            Yeni Vadeli İşlem Sinyali Tara
+            Yeni Vadeli İşlem Sinyali Tara (Radar)
           </button>
         </div>
 
@@ -326,6 +347,7 @@
             </div>
             <div style="display:flex; gap:4px;">
               <button class="chart-tf-btn active" id="btnChartTypeCandle">Mum</button>
+              <button class="chart-tf-btn" id="btnChartTypeBar">Bar</button>
               <button class="chart-tf-btn" id="btnChartTypeHeikin">HA</button>
               <button class="chart-tf-btn" id="btnChartTypeLine">Çizgi</button>
             </div>
@@ -337,7 +359,18 @@
               <button class="chart-tf-btn active" id="btnToggleEMA">EMA 20/50</button>
               <button class="chart-tf-btn active" id="btnToggleRSI">RSI (14)</button>
               <button class="chart-tf-btn active" id="btnToggleTargets">Sinyal TP/SL</button>
-              <button class="chart-tf-btn" id="btnToolHorizontal">Yatay Çizgi</button>
+              <button class="chart-tf-btn" id="btnNavLatestPrice">▶ Son Fiyat</button>
+            </div>
+          </div>
+
+          <div class="chart-controls-bar" style="margin-top:2px;">
+            <div style="display:flex; gap:4px; font-size:9px;">
+              <span style="font-size:9px; color:var(--text-dim); display:flex; align-items:center;">Çizim:</span>
+              <button class="chart-tf-btn" id="btnToolHorizontal">Yatay</button>
+              <button class="chart-tf-btn" id="btnToolVertical">Düşey</button>
+              <button class="chart-tf-btn" id="btnToolBox">Destek/Direnç Kutusu</button>
+              <button class="chart-tf-btn" id="btnToggleDrawings">Gizle/Göster</button>
+              <button class="chart-tf-btn" id="btnClearDrawings" style="color:var(--neon-red);">Sil</button>
             </div>
           </div>
 
@@ -384,9 +417,26 @@
             Birincil depolama Apache Parquet formatında <code>data/{symbol}/{timeframe}/</code> altında tutulur. SQLite ile eksik aralıklar (gaps) denetlenir.
           </div>
 
-          <div style="display:flex; gap:6px;">
-            <button class="btn btn-cyan" id="btnSyncAllData" style="font-size:11px; padding:8px;">Eksikleri Senkronize Et</button>
-            <button class="btn btn-outline" id="btnRefreshDataList" style="font-size:11px; padding:8px;">Yenile</button>
+          <!-- Controls from Master Prompt: Download All, Download Selected, Pause, Resume, Cancel, Sync Missing -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
+            <button class="btn btn-cyan" id="btnDownloadAll" style="font-size:10px; padding:8px;">Tüm Varlıkları İndir</button>
+            <button class="btn btn-primary" id="btnSyncAllData" style="font-size:10px; padding:8px;">Eksikleri Senkronize Et</button>
+          </div>
+
+          <div style="display:flex; gap:4px; margin-bottom:8px;">
+            <button class="chart-tf-btn" id="btnDataPause" style="flex:1;">Duraklat (Pause)</button>
+            <button class="chart-tf-btn" id="btnDataResume" style="flex:1;">Devam Et (Resume)</button>
+            <button class="chart-tf-btn" id="btnDataCancel" style="flex:1; color:var(--neon-red);">İptal (Cancel)</button>
+          </div>
+
+          <!-- New Asset Ingestion (Master Prompt rule: User can add another Futures asset later) -->
+          <div style="background:rgba(0,0,0,0.35); padding:8px; border-radius:10px; border:1px solid var(--border-subtle); margin-top:6px;">
+            <div class="card-label" style="margin-bottom:4px;">YENİ VADELİ VARLIK EKLE (ADD NEW ASSET)</div>
+            <div style="display:flex; gap:4px;">
+              <input type="text" id="newAssetInput" placeholder="Örn: NEARUSDT, SUIUSDT..." style="flex:1; background:#000; border:1px solid var(--border-subtle); color:white; padding:6px 8px; border-radius:8px; font-size:11px; text-transform:uppercase;">
+              <button class="btn btn-outline" id="btnAddNewAsset" style="width:auto; padding:6px 12px; margin:0; font-size:11px;">Ekle & Eğit</button>
+            </div>
+            <div id="newAssetStatus" style="font-size:9px; color:var(--neon-green); margin-top:4px; display:none;"></div>
           </div>
         </div>
 
@@ -520,10 +570,11 @@
             </select>
           </div>
 
-          <div style="display:flex; gap:6px;">
-            <button class="btn btn-outline" id="btnExportLogsJson" style="font-size:10px; padding:6px;">İndir JSON</button>
-            <button class="btn btn-outline" id="btnExportLogsTxt" style="font-size:10px; padding:6px;">İndir TXT</button>
-            <button class="btn btn-outline" id="btnExportLogsCsv" style="font-size:10px; padding:6px;">İndir CSV</button>
+          <div style="display:flex; gap:4px; margin-top:6px;">
+            <button class="btn btn-outline" id="btnCopyLogs" style="font-size:10px; padding:6px; flex:1;">Panoya Kopyala</button>
+            <button class="btn btn-outline" id="btnExportLogsJson" style="font-size:10px; padding:6px; flex:1;">JSON</button>
+            <button class="btn btn-outline" id="btnExportLogsTxt" style="font-size:10px; padding:6px; flex:1;">TXT</button>
+            <button class="btn btn-outline" id="btnExportLogsCsv" style="font-size:10px; padding:6px; flex:1;">CSV</button>
           </div>
         </div>
 

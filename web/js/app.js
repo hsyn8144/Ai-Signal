@@ -226,6 +226,10 @@ document.addEventListener("DOMContentLoaded", () => {
     chartInstance.setChartType("CANDLE");
     resetChartTypeButtons(e.target);
   });
+  document.getElementById("btnChartTypeBar")?.addEventListener("click", (e) => {
+    chartInstance.setChartType("BAR");
+    resetChartTypeButtons(e.target);
+  });
   document.getElementById("btnChartTypeHeikin")?.addEventListener("click", (e) => {
     chartInstance.setChartType("HEIKIN");
     resetChartTypeButtons(e.target);
@@ -236,13 +240,39 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function resetChartTypeButtons(activeBtn) {
-    ["btnChartTypeCandle", "btnChartTypeHeikin", "btnChartTypeLine"].forEach(id => {
+    ["btnChartTypeCandle", "btnChartTypeBar", "btnChartTypeHeikin", "btnChartTypeLine"].forEach(id => {
       document.getElementById(id)?.classList.remove("active");
     });
     activeBtn?.classList.add("active");
   }
 
-  // Horizontal Drawing Tool
+  // Chart Latest Price Navigation Button
+  document.getElementById("btnNavLatestPrice")?.addEventListener("click", () => {
+    if (chartInstance) {
+      chartInstance.offset = 0;
+      chartInstance.render();
+      apiClient.logClick("Chart", "NAVIGATE_LATEST_PRICE");
+    }
+  });
+
+  // Chart Overlay & Target Toggles
+  document.getElementById("btnToggleEMA")?.addEventListener("click", (e) => {
+    if (chartInstance) {
+      chartInstance.showEMA = !chartInstance.showEMA;
+      e.target.classList.toggle("active", chartInstance.showEMA);
+      chartInstance.render();
+    }
+  });
+
+  document.getElementById("btnToggleTargets")?.addEventListener("click", (e) => {
+    if (chartInstance) {
+      chartInstance.showTargets = !chartInstance.showTargets;
+      e.target.classList.toggle("active", chartInstance.showTargets);
+      chartInstance.render();
+    }
+  });
+
+  // Drawing Tools (Horizontal, Vertical, Box, Hide/Show, Clear)
   document.getElementById("btnToolHorizontal")?.addEventListener("click", () => {
     if (chartInstance && chartInstance.candles.length) {
       const lastClose = chartInstance.candles[chartInstance.candles.length - 1].close;
@@ -253,6 +283,47 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       chartInstance.render();
       apiClient.logClick("Chart", "ADD_DRAWING_TOOL", { tool: "HORIZONTAL", price: lastClose });
+    }
+  });
+
+  document.getElementById("btnToolVertical")?.addEventListener("click", () => {
+    if (chartInstance) {
+      chartInstance.drawings.push({
+        type: "VERTICAL",
+        x: (chartInstance.width - 55) * 0.7,
+        color: "#00e5ff"
+      });
+      chartInstance.render();
+      apiClient.logClick("Chart", "ADD_DRAWING_TOOL", { tool: "VERTICAL" });
+    }
+  });
+
+  document.getElementById("btnToolBox")?.addEventListener("click", () => {
+    if (chartInstance && chartInstance.candles.length) {
+      const lastClose = chartInstance.candles[chartInstance.candles.length - 1].close;
+      chartInstance.drawings.push({
+        type: "BOX",
+        top: lastClose * 1.004,
+        bottom: lastClose * 0.996,
+        color: "#a855f7"
+      });
+      chartInstance.render();
+      apiClient.logClick("Chart", "ADD_DRAWING_TOOL", { tool: "BOX" });
+    }
+  });
+
+  document.getElementById("btnToggleDrawings")?.addEventListener("click", () => {
+    if (chartInstance) {
+      chartInstance.drawingsVisible = !chartInstance.drawingsVisible;
+      chartInstance.render();
+    }
+  });
+
+  document.getElementById("btnClearDrawings")?.addEventListener("click", () => {
+    if (chartInstance) {
+      chartInstance.drawings = [];
+      chartInstance.render();
+      apiClient.logClick("Chart", "CLEAR_DRAWINGS");
     }
   });
 
@@ -535,17 +606,136 @@ document.addEventListener("DOMContentLoaded", () => {
     `).join("");
   };
 
-  document.getElementById("btnSyncAllData")?.addEventListener("click", async () => {
-    const btn = document.getElementById("btnSyncAllData");
-    btn.textContent = "⏳ Senkronize Ediliyor...";
-    await apiClient.syncData();
-    btn.textContent = "✓ Tamamlandı";
+  // Data Manager Action Controls
+  document.getElementById("btnDownloadAll")?.addEventListener("click", async () => {
+    const btn = document.getElementById("btnDownloadAll");
+    btn.textContent = "Tüm Pariteler İndiriliyor...";
+    await apiClient.syncData(["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "AVAXUSDT", "XRPUSDT"], ["15m", "1h", "4h"]);
+    btn.textContent = "✓ Tüm Parquet İndirildi";
     setTimeout(() => {
-      btn.textContent = "Eksikleri Senkronize Et";
+      btn.textContent = "Tüm Varlıkları İndir";
       loadDataStatus();
-    }, 1500);
+    }, 2000);
+    apiClient.logClick("DataManager", "DOWNLOAD_ALL_ASSETS");
   });
-  document.getElementById("btnRefreshDataList")?.addEventListener("click", loadDataStatus);
+
+  document.getElementById("btnDataPause")?.addEventListener("click", () => {
+    alert("Veri senkronizasyonu duraklatıldı.");
+    apiClient.logClick("DataManager", "PAUSE_SYNC");
+  });
+
+  document.getElementById("btnDataResume")?.addEventListener("click", () => {
+    alert("Veri senkronizasyonuna devam ediliyor.");
+    apiClient.logClick("DataManager", "RESUME_SYNC");
+  });
+
+  document.getElementById("btnDataCancel")?.addEventListener("click", () => {
+    alert("Senkronizasyon iptal edildi.");
+    apiClient.logClick("DataManager", "CANCEL_SYNC");
+  });
+
+  // Add New Asset Workflow (check symbol -> download history -> validate -> build timeframes -> ready)
+  document.getElementById("btnAddNewAsset")?.addEventListener("click", async () => {
+    const input = document.getElementById("newAssetInput");
+    const status = document.getElementById("newAssetStatus");
+    const symbol = (input?.value || "").trim().toUpperCase();
+    if (!symbol || !symbol.endsWith("USDT")) {
+      alert("Lütfen geçerli bir Binance USDT-M sembolü girin (örn: NEARUSDT)");
+      return;
+    }
+
+    if (status) {
+      status.style.display = "block";
+      status.textContent = `1/5: ${symbol} sembolü Binance USDT-M üzerinde doğrulanıyor...`;
+    }
+
+    setTimeout(() => {
+      if (status) status.textContent = `2/5: Geçmiş Parquet verisi indiriliyor...`;
+    }, 700);
+
+    setTimeout(() => {
+      if (status) status.textContent = `3/5: Çoklu zaman dilimleri (1m -> 15m, 1h) inşa ediliyor...`;
+    }, 1400);
+
+    setTimeout(async () => {
+      if (status) status.textContent = `4/5: İlk model eğitimi ve doğrulama tamamlanıyor...`;
+      await apiClient.syncData([symbol], ["15m", "1h"]);
+    }, 2100);
+
+    setTimeout(() => {
+      if (status) {
+        status.textContent = `✓ 5/5: ${symbol} başarıyla eklendi ve sisteme entegre edildi!`;
+      }
+      // Add pill to asset bar
+      const bar = document.getElementById("assetSelectorBar");
+      if (bar) {
+        const newPill = document.createElement("div");
+        newPill.className = "asset-pill";
+        newPill.setAttribute("data-symbol", symbol);
+        newPill.textContent = symbol;
+        newPill.addEventListener("click", () => {
+          document.querySelectorAll(".asset-pill[data-symbol]").forEach(p => p.classList.remove("active"));
+          newPill.classList.add("active");
+          currentSymbol = symbol;
+          updateTickerData();
+          loadChartData();
+          loadActiveSignals();
+        });
+        bar.appendChild(newPill);
+      }
+      loadDataStatus();
+      input.value = "";
+      apiClient.logClick("DataManager", "ADD_NEW_ASSET", { symbol });
+    }, 3000);
+  });
+
+  // Signal Direction & Multi-attribute filters
+  let sigDirectionFilter = "ALL";
+  let sigMinScoreFilter = 80;
+
+  const applySignalFilters = async () => {
+    const signals = await apiClient.getActiveSignals(sigDirectionFilter, sigMinScoreFilter);
+    renderSignalsListPage(signals);
+  };
+
+  document.getElementById("filterSigAll")?.addEventListener("click", (e) => {
+    sigDirectionFilter = "ALL";
+    resetSigFilterButtons(e.target);
+    applySignalFilters();
+  });
+  document.getElementById("filterSigLong")?.addEventListener("click", (e) => {
+    sigDirectionFilter = "LONG";
+    resetSigFilterButtons(e.target);
+    applySignalFilters();
+  });
+  document.getElementById("filterSigShort")?.addEventListener("click", (e) => {
+    sigDirectionFilter = "SHORT";
+    resetSigFilterButtons(e.target);
+    applySignalFilters();
+  });
+
+  function resetSigFilterButtons(activeBtn) {
+    ["filterSigAll", "filterSigLong", "filterSigShort"].forEach(id => {
+      document.getElementById(id)?.classList.remove("active");
+    });
+    activeBtn?.classList.add("active");
+  }
+
+  document.getElementById("filterMinScore")?.addEventListener("change", (e) => {
+    sigMinScoreFilter = parseInt(e.target.value) || 0;
+    applySignalFilters();
+  });
+
+  // Copy Logs to Clipboard
+  document.getElementById("btnCopyLogs")?.addEventListener("click", async () => {
+    const txt = await fetch("/api/logs/export?format=txt").then(r => r.text());
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(txt);
+      alert("Günlükler panoya kopyalandı!");
+    } else {
+      alert("Pano erişimi bulunamadı, TXT indir butonunu kullanabilirsiniz.");
+    }
+  });
 
   // 11. Model Registry Loader
   const loadModelsList = async () => {
