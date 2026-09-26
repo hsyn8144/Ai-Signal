@@ -80,7 +80,7 @@ class MainActivity : Activity() {
     }
 
     /**
-     * /api/** is answered instantly with HTTP 503 so the web app's
+     * The /api/ path is answered instantly with HTTP 503 so the web app's
      * fetch() calls fall back to the built-in offline demo engine
      * without waiting for any network timeout.
      */
