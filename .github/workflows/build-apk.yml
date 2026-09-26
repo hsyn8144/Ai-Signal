@@ -24,16 +24,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build Debug APK
+      - name: Download Gradle & Compile Android APK
         working-directory: android
         run: |
-          gradle assembleDebug --stacktrace
+          echo "=== 1. Gradle 8.7 İndiriliyor ==="
+          wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip
+          unzip -q gradle-8.7-bin.zip
+          export PATH=$PWD/gradle-8.7/bin:$PATH
+          gradle -v
+          
+          echo "=== 2. Android APK Derleniyor ==="
+          sed -i 's/ic_launcher_round/ic_launcher/g' app/src/main/AndroidManifest.xml || true
+          gradle assembleDebug --stacktrace --no-daemon
 
       - name: Prepare APK Artifact
         run: |
