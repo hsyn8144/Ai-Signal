@@ -800,3 +800,39 @@ canvas#mainChart {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ================= APK / Native WebView Mode ================= */
+body.apk-mode {
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: var(--bg-surface) !important;
+}
+body.apk-mode .desktop-wrapper {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+}
+body.apk-mode .top-control-bar {
+  display: none !important;
+}
+body.apk-mode .phone-notch {
+  display: none !important;
+}
+body.apk-mode .phone-status-bar {
+  display: none !important;
+}
+body.apk-mode .phone {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+body.apk-mode .screen-container {
+  padding-bottom: 88px;
+}
+body.apk-mode .app-header {
+  padding-top: 14px;
+}
