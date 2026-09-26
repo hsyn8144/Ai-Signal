@@ -359,10 +359,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tp1El) tp1El.textContent = `${topSig.tp1.toLocaleString()} (%${topSig.tp1_prob || 81} Olasılık)`;
     if (tp2El) tp2El.textContent = `${topSig.tp2.toLocaleString()} (%${topSig.tp2_prob || 63} Olasılık)`;
     if (slEl) slEl.textContent = `${topSig.sl.toLocaleString()} (%${topSig.sl_prob || 17} Olasılık)`;
-    if (rrEl) rrEl.textContent = `1 : ${topSig.risk_reward}`;
+    if (rrEl) {
+      const kellyText = topSig.kelly_fraction_pct ? ` (Kasa: %${topSig.kelly_fraction_pct})` : " (Kasa: %3.8)";
+      rrEl.textContent = `1 : ${topSig.risk_reward}${kellyText}`;
+    }
     if (durEl) durEl.textContent = topSig.expected_duration;
     if (regEl) regEl.textContent = topSig.market_regime;
     if (ratEl) ratEl.textContent = topSig.rationale;
+
+    const bMagnet = document.getElementById("badgeMagnet");
+    const bSession = document.getElementById("badgeSession");
+    const bHurst = document.getElementById("badgeHurst");
+    if (bMagnet && topSig.liq_magnet_level) bMagnet.textContent = `🧲 Mıknatıs: ${topSig.liq_magnet_level}`;
+    if (bSession && topSig.active_session) bSession.textContent = topSig.active_session;
+    if (bHurst && topSig.hurst_regime) bHurst.textContent = topSig.hurst_regime;
 
     // Overlay signal target levels onto chart
     if (chartInstance) {

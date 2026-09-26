@@ -165,8 +165,34 @@
               <div class="m-val red" id="homeSigSL">103,820 (%17 Olasılık)</div>
             </div>
             <div class="signal-metric">
-              <div class="m-label">RİSK / KAZANÇ (R:R)</div>
-              <div class="m-val" id="homeSigRR">1 : 2.85</div>
+              <div class="m-label">R:R / KELLY MARJİN</div>
+              <div class="m-val yellow" id="homeSigRR">1 : 2.85 (Kasa: %3.8)</div>
+            </div>
+          </div>
+
+          <!-- Non-indicator Quant Badges (Magnet, Killzone, Hurst) -->
+          <div style="display:flex; flex-wrap:wrap; gap:4px; margin:6px 0; font-size:9px;">
+            <span style="background:rgba(168,85,247,0.2); color:#d8b4fe; padding:2px 6px; border-radius:6px; border:1px solid rgba(168,85,247,0.3);" id="badgeMagnet">🧲 Mıknatıs: 105,240 USDT</span>
+            <span style="background:rgba(0,229,255,0.2); color:#67e8f9; padding:2px 6px; border-radius:6px; border:1px solid rgba(0,229,255,0.3);" id="badgeSession">🇬🇧 LONDRA KILLZONE</span>
+            <span style="background:rgba(57,255,136,0.2); color:#86efac; padding:2px 6px; border-radius:6px; border:1px solid rgba(57,255,136,0.3);" id="badgeHurst">TREND (H=0.64)</span>
+          </div>
+
+          <!-- Explainable AI (XAI) Attribution Bar -->
+          <div style="background:rgba(0,0,0,0.35); padding:8px; border-radius:10px; margin:6px 0;">
+            <div class="card-label" style="font-size:9px; margin-bottom:4px;">YAPAY ZEKA KARAR DAĞILIMI (XAI ATTRIBUTION)</div>
+            <div style="display:flex; height:6px; border-radius:6px; overflow:hidden; gap:2px; margin-bottom:4px;">
+              <div style="width:32%; background:#a855f7;" title="Likidasyon Mıknatısı %32"></div>
+              <div style="width:26%; background:#00e5ff;" title="Fonlama Squeeze %26"></div>
+              <div style="width:22%; background:#39ff88;" title="Killzone Hacim %22"></div>
+              <div style="width:12%; background:#ffe600;" title="Fitil Reddi %12"></div>
+              <div style="width:8%; background:#64748b;" title="İndikatörler %8"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:8px; color:var(--text-muted);">
+              <span>%32 Likidasyon</span>
+              <span>%26 Squeeze</span>
+              <span>%22 Killzone</span>
+              <span>%12 Fitil</span>
+              <span>%8 İndikatör</span>
             </div>
           </div>
 

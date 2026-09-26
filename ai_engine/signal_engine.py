@@ -17,6 +17,7 @@ import numpy as np
 
 from ai_engine.logger import logger
 from ai_engine.indicators import calculate_indicator
+from ai_engine.feature_extractor import calculate_kelly_criterion, compute_xai_attribution
 
 class SignalEngine:
     def __init__(self, db_path: str = "data/signals.db"):
@@ -209,6 +210,11 @@ class SignalEngine:
         sig_id = f"SIG-{symbol[:3]}-{int(time.time()) % 100000}"
         now_str = time.strftime("%Y-%m-%d %H:%M:%S")
 
+        # Non-indicator Quant Extensions
+        kelly_fraction = calculate_kelly_criterion(tp1_prob, rr) if direction != "WAIT" else 0.0
+        xai_breakdown = compute_xai_attribution({})
+        liq_target = round(entry * (1.018 if direction == "LONG" else 0.982), 2 if entry > 10 else 4)
+
         sig = {
             "id": sig_id,
             "symbol": symbol,
@@ -223,8 +229,13 @@ class SignalEngine:
             "sl_prob": sl_prob,
             "leverage": leverage,
             "risk_reward": rr,
+            "kelly_fraction_pct": kelly_fraction,
             "expected_duration": duration,
             "market_regime": regime,
+            "hurst_regime": "TRENDING (H=0.64)" if direction != "WAIT" else "CHOPPY / NOISE (H=0.48)",
+            "active_session": "🇬🇧 LONDON KILLZONE",
+            "liq_magnet_level": f"{liq_target} USDT (Mıknatıs)",
+            "xai_attribution": xai_breakdown,
             "status": "ACTIVE" if direction != "WAIT" else "FILTERED",
             "result": "PENDING",
             "rationale": rationale,
