@@ -285,7 +285,6 @@ def compute_xai_attribution(features_row: Dict[str, Any]) -> Dict[str, int]:
     Explainable AI (XAI) Özellik Etki Dağılımı:
     Sinyalin arkasındaki % katkıyı kullanıcıya şeffafça açıklar.
     """
-    # Normalized weights based on quant significance
     weights = {
         "Likidasyon Mıknatısı": 32,
         "Fonlama Squeeze Riski": 26,
@@ -294,6 +293,61 @@ def compute_xai_attribution(features_row: Dict[str, Any]) -> Dict[str, int]:
         "RSI & EMA Trend Teyidi": 8
     }
     return weights
+
+def calculate_sample_weights_recency_decay(df: pd.DataFrame, half_life_bars: int = 100) -> np.ndarray:
+    """
+    Zaman Tabanlı Üstel Ağırlıklandırma (Exponential Recency Decay):
+    Eski piyasa koşulları ile güncel piyasa koşulları arasındaki rejim farkını dengeler.
+    Yeni verilere daha yüksek model ağırlığı atar.
+    """
+    n = len(df)
+    decay_factor = np.log(2) / half_life_bars
+    time_indices = np.arange(n)
+    weights = np.exp(decay_factor * (time_indices - n))
+    return (weights / weights.mean()).round(4)
+
+def fractional_differentiation(series: pd.Series, d: float = 0.4, threshold: float = 1e-4) -> pd.Series:
+    """
+    Marcos López de Prado - Fraksiyonel Fark Alma (Fractional Differentiation):
+    Tam fark (d=1) serinin tüm hafızasını siler.
+    Fraksiyonel fark (d≈0.35-0.45) seriyi durağanlaştırırken (stationarity)
+    fiyat hafızasını (long-memory properties) korur.
+    """
+    weights = [1.0]
+    k = 1
+    while True:
+        w = -weights[-1] / k * (d - k + 1)
+        if abs(w) < threshold or k > 50:
+            break
+        weights.append(w)
+        k += 1
+    
+    weights = np.array(weights[::-1])
+    frac_diff = np.convolve(series.values, weights, mode='valid')
+    padded = np.pad(frac_diff, (len(series) - len(frac_diff), 0), 'edge')
+    return pd.Series(padded, index=series.index).round(4)
+
+def analyze_mae_mfe(df: pd.DataFrame, entry_index: int, direction: int, horizon: int = 12) -> Tuple[float, float]:
+    """
+    Maksimum Olumsuz Sapma (MAE) ve Maksimum Olumlu Sapma (MFE):
+    İşleme girildikten sonra kâra gitmeden önce aleyhte maksimum kaç pips/yüzde gitti (MAE)
+    ve lehte maksimum ne kadar koştu (MFE).
+    Stop-Loss ve Kâr Al seviyelerini optimize etmek için kullanılır.
+    """
+    if entry_index + horizon >= len(df):
+        return 0.0, 0.0
+
+    entry_p = df["close"].iloc[entry_index]
+    fut = df.iloc[entry_index+1 : entry_index+horizon+1]
+
+    if direction == 1: # LONG
+        mfe = (fut["high"].max() - entry_p) / entry_p * 100.0
+        mae = (entry_p - fut["low"].min()) / entry_p * 100.0
+    else: # SHORT
+        mfe = (entry_p - fut["low"].min()) / entry_p * 100.0
+        mae = (fut["high"].max() - entry_p) / entry_p * 100.0
+
+    return max(0.0, round(float(mfe), 3)), max(0.0, round(float(mae), 3))
 
 def generate_triple_barrier_labels(
     df: pd.DataFrame,

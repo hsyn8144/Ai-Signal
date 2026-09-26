@@ -238,6 +238,19 @@ def export_logs(format: str = "json"):
         headers={"Content-Disposition": f"attachment; filename=futures_ai_logs.{format}"}
     )
 
+@app.get("/api/download/FuturesAI.apk")
+def download_apk():
+    apk_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "release_apk", "FuturesAI-v1.0.0.apk")
+    if not os.path.exists(apk_file):
+        raise HTTPException(status_code=404, detail="APK build in progress")
+    with open(apk_file, "rb") as f:
+        content = f.read()
+    return Response(
+        content=content,
+        media_type="application/vnd.android.package-archive",
+        headers={"Content-Disposition": "attachment; filename=FuturesAI-v1.0.0.apk"}
+    )
+
 # Mount static web UI at root /
 WEB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web")
 if os.path.exists(WEB_DIR):

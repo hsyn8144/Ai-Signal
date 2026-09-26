@@ -736,7 +736,39 @@ document.addEventListener("DOMContentLoaded", () => {
     applySignalFilters();
   });
 
-  // Copy Logs to Clipboard
+  // Service Worker Registration for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.log('SW registration note:', err.message);
+    });
+  }
+
+  // PWA Install Prompt Listener
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  document.getElementById("btnInstallPwaMenu")?.addEventListener("click", () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choice) => {
+        if (choice.outcome === 'accepted') {
+          alert("Futures AI telefonunuza yükleniyor!");
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      alert("Telefonunuzun tarayıcı menüsünden (⋮ veya Paylaş) 'Ana Ekrana Ekle' / 'Uygulamayı Yükle' seçeneğine basarak anında yükleyebilirsiniz!");
+    }
+  });
+
+  document.getElementById("btnDownloadApkMenu")?.addEventListener("click", () => {
+    window.location.href = "/api/download/FuturesAI.apk";
+  });
+
+  // Export Logs to Clipboard
   document.getElementById("btnCopyLogs")?.addEventListener("click", async () => {
     const txt = await fetch("/api/logs/export?format=txt").then(r => r.text());
     if (navigator.clipboard) {

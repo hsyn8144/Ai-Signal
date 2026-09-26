@@ -21,7 +21,11 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 from ai_engine.logger import logger
 from ai_engine.indicators import calculate_indicator
-from ai_engine.feature_extractor import extract_full_futures_feature_matrix
+from ai_engine.feature_extractor import (
+    extract_full_futures_feature_matrix,
+    calculate_sample_weights_recency_decay,
+    fractional_differentiation
+)
 
 TRAINING_PIPELINE_STEPS = [
     {"step": 1, "name": "Data Check", "desc": "Validating historical Parquet partitions & timestamps"},
@@ -198,7 +202,10 @@ def train_futures_model(
         "trend_spread": [e20 - e50 if (e20 and e50) else 0.0 for e20, e50 in zip(ema20, ema50)]
     }, index=df.index).fillna(0.0)
 
-    # Combined Full Feature Matrix
+    # Combined Full Feature Matrix with Fractional Differentiation
+    frac_close = fractional_differentiation(df["close"], d=0.4)
+    non_ind_features["frac_diff_price"] = frac_close
+
     X_full = pd.concat([non_ind_features, ind_df], axis=1).iloc[:-12]
     y_target = tb_labels["target_direction"].iloc[:-12]
 
@@ -207,9 +214,12 @@ def train_futures_model(
     X_train, X_val = X_full.iloc[:split_idx], X_full.iloc[split_idx:]
     y_train, y_val = y_target.iloc[:split_idx], y_target.iloc[split_idx:]
 
-    # Model fitting (Random Forest / Gradient Boosting Ensemble)
+    # Exponential Recency Decay Sample Weighting
+    sample_weights = calculate_sample_weights_recency_decay(X_train)
+
+    # Model fitting (Random Forest / Gradient Boosting Ensemble with Recency Weighting)
     clf = RandomForestClassifier(n_estimators=75, max_depth=7, random_state=42)
-    clf.fit(X_train, y_train)
+    clf.fit(X_train, y_train, sample_weight=sample_weights)
 
     preds = clf.predict(X_val)
     acc = accuracy_score(y_val, preds)

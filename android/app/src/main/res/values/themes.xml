@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.FuturesAI" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#020307</item>
+        <item name="android:navigationBarColor">#020307</item>
+        <item name="android:windowBackground">#020307</item>
+    </style>
+</resources>

@@ -3,7 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#020307">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Futures AI Mobile — Binance USDT-M Signals</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -661,6 +667,14 @@
       </div>
 
       <div class="menu-list">
+        <div class="menu-item" style="border-color:var(--neon-green); background:rgba(57,255,136,0.12);" id="btnDownloadApkMenu">
+          <span>📲 Android APK İndir (.apk)</span>
+          <span style="color:var(--neon-green); font-weight:800;">v1.0.0</span>
+        </div>
+        <div class="menu-item" style="border-color:var(--neon-cyan); background:rgba(0,229,255,0.12);" id="btnInstallPwaMenu">
+          <span>⚡ Telefona Yükle (PWA)</span>
+          <span style="color:var(--neon-cyan); font-weight:800;">Anında</span>
+        </div>
         <div class="menu-item" data-goto="page-data">
           <span>📁 Parquet Veri Yöneticisi</span>
           <span style="color:var(--neon-cyan)">data/{symbol}/{tf}</span>
