@@ -12,6 +12,16 @@ document.addEventListener("DOMContentLoaded", () => {
   let homeOrbit = null;
   let trainingOrbit = null;
 
+  // APK / WebView mode detection (native wrapper loads with ?apk=1)
+  const IS_APK = location.search.indexOf("apk=1") !== -1 ||
+    location.hostname === "appassets.androidplatform.net";
+  window.IS_APK = IS_APK;
+  if (IS_APK) {
+    document.body.classList.add("apk-mode");
+    const pc = document.getElementById("phoneContainer");
+    if (pc) pc.classList.add("fullscreen-mode");
+  }
+
   // 1. Splash Screen Auto-Dismissal (2.0s as required: 1.5–2.5s)
   const splashEl = document.getElementById("splashOverlay");
   setTimeout(() => {
@@ -736,9 +746,9 @@ document.addEventListener("DOMContentLoaded", () => {
     applySignalFilters();
   });
 
-  // Service Worker Registration for PWA
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(err => {
+  // Service Worker Registration for PWA (skipped inside native APK WebView)
+  if ('serviceWorker' in navigator && !IS_APK) {
+    navigator.serviceWorker.register('sw.js').catch(err => {
       console.log('SW registration note:', err.message);
     });
   }
@@ -751,6 +761,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("btnInstallPwaMenu")?.addEventListener("click", () => {
+    if (IS_APK) {
+      alert("Futures AI zaten telefonunuza uygulama olarak kurulu ✓");
+      return;
+    }
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choice) => {
@@ -764,20 +778,64 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Offline-capable log formatting & export (JSON / TXT / CSV)
+  const formatLogsForExport = (logs, format) => {
+    if (format === "json") return JSON.stringify(logs, null, 2);
+    if (format === "csv") {
+      const head = "timestamp,category,severity,code,message";
+      const rows = logs.map(l =>
+        `${l.timestamp},${l.category},${l.severity},${l.code || ""},"${String(l.message).replace(/"/g, '""')}"`);
+      return [head, ...rows].join("\n");
+    }
+    return logs.map(l =>
+      `${l.timestamp} [${l.category}] ${l.severity}${l.code ? " [" + l.code + "]" : ""} ${l.message}`
+    ).join("\n");
+  };
+
+  const exportLogsClient = async (format) => {
+    try {
+      let txt = "";
+      try {
+        const resp = await fetch(`/api/logs/export?format=${format}`);
+        if (resp.ok) txt = await resp.text();
+      } catch (e) { /* offline - use local buffer */ }
+      if (!txt) {
+        const logs = await apiClient.getLogs("ALL", "ALL", "");
+        txt = formatLogsForExport(Array.isArray(logs) ? logs : [], format);
+      }
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: `Futures AI Logs (${format.toUpperCase()})`, text: txt });
+          return;
+        } catch (e) { /* fall through to clipboard */ }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(txt);
+        alert(`Günlükler ${format.toUpperCase()} olarak panoya kopyalandı!`);
+        return;
+      }
+      const ta = document.createElement("textarea");
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      alert(`Günlükler ${format.toUpperCase()} olarak panoya kopyalandı!`);
+    } catch (e) {
+      alert("Dışa aktarma başarısız: " + e.message);
+    }
+  };
+
   document.getElementById("btnDownloadApkMenu")?.addEventListener("click", () => {
+    if (IS_APK) {
+      alert("Zaten Futures AI APK sürümünü kullanıyorsunuz ✓");
+      return;
+    }
     window.location.href = "/api/download/FuturesAI.apk";
   });
 
   // Export Logs to Clipboard
-  document.getElementById("btnCopyLogs")?.addEventListener("click", async () => {
-    const txt = await fetch("/api/logs/export?format=txt").then(r => r.text());
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(txt);
-      alert("Günlükler panoya kopyalandı!");
-    } else {
-      alert("Pano erişimi bulunamadı, TXT indir butonunu kullanabilirsiniz.");
-    }
-  });
+  document.getElementById("btnCopyLogs")?.addEventListener("click", () => exportLogsClient("txt"));
 
   // 11. Model Registry Loader
   const loadModelsList = async () => {
@@ -902,14 +960,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("logSearchInput")?.addEventListener("input", loadLogs);
   document.getElementById("logCategorySelect")?.addEventListener("change", loadLogs);
 
-  document.getElementById("btnExportLogsJson")?.addEventListener("click", () => {
-    window.open("/api/logs/export?format=json", "_blank");
-  });
-  document.getElementById("btnExportLogsTxt")?.addEventListener("click", () => {
-    window.open("/api/logs/export?format=txt", "_blank");
-  });
-  document.getElementById("btnExportLogsCsv")?.addEventListener("click", () => {
-    window.open("/api/logs/export?format=csv", "_blank");
-  });
+  document.getElementById("btnExportLogsJson")?.addEventListener("click", () => exportLogsClient("json"));
+  document.getElementById("btnExportLogsTxt")?.addEventListener("click", () => exportLogsClient("txt"));
+  document.getElementById("btnExportLogsCsv")?.addEventListener("click", () => exportLogsClient("csv"));
 
 });

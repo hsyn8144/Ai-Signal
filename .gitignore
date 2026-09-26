@@ -24,3 +24,11 @@ wheels/
 .coverage
 htmlcov/
 .DS_Store
+
+# Android / build outputs
+.gradle/
+local.properties
+*.apk
+*.aab
+release_apk/
+android/gradle-8.7/
