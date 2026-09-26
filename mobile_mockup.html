@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Futures AI Mobile Mockup</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#020307;color:#f8fafc;font-family:Inter,Arial,sans-serif}
+.phone{width:390px;height:844px;margin:20px auto;background:radial-gradient(circle at center,rgba(168,85,247,.12),transparent 38%),#050608;border-radius:32px;overflow:hidden;position:relative}
+.header{padding:22px 18px 12px;display:flex;justify-content:space-between}.title{font-size:22px;font-weight:700}.status{font-size:12px;color:#39ff88}
+.card{margin:12px;padding:18px;border-radius:22px;background:rgba(15,18,27,.82);border:1px solid rgba(168,85,247,.25);box-shadow:0 0 25px rgba(168,85,247,.08)}
+.label{text-align:center;color:#94a3b8;font-size:12px;margin-top:8px}.signal{font-size:30px;font-weight:800}.long{color:#39ff88}
+.orbit{width:230px;height:230px;margin:25px auto;border-radius:50%;position:relative;border:1px solid rgba(168,85,247,.3);box-shadow:0 0 25px rgba(168,85,247,.15);animation:rotate 12s linear infinite}
+.orbit:before,.orbit:after{content:"";position:absolute;inset:20px;border-radius:50%;border:1px solid rgba(0,229,255,.28)}
+.orbit:after{inset:48px;border-color:rgba(57,255,136,.3)}
+.core{position:absolute;width:28px;height:28px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:white;box-shadow:0 0 12px white,0 0 35px #a855f7,0 0 65px #2563ff}
+.percent{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:800;z-index:3}
+.progress{height:8px;border-radius:20px;overflow:hidden;background:#171923}.progress>div{width:72%;height:100%;background:linear-gradient(90deg,#2563ff,#a855f7,#00e5ff);box-shadow:0 0 15px #a855f7}
+.bottom{position:absolute;bottom:0;width:100%;height:72px;background:rgba(8,9,13,.96);border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-around;align-items:center}
+.nav{color:#64748b;font-size:11px}.nav.active{color:#a855f7}@keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="header"><div class="title">FUTURES AI</div><div class="status">● LIVE</div></div>
+<div class="card"><div class="label">TRAINING</div>
+<div class="orbit"><div class="core"></div><div class="percent">72%</div></div>
+<div class="label">BTCUSDT • MULTI TIMEFRAME</div></div>
+<div class="card"><div class="label">ACTIVE SIGNAL</div><div class="signal long">LONG</div>
+<p>BTCUSDT</p><p>Confidence: 87%</p><p>TP1: 104720</p><p>TP2: 105180</p><p>SL: 103820</p></div>
+<div class="card"><div class="label">TRAINING PROGRESS</div><div class="progress"><div></div></div></div>
+<div class="bottom"><div class="nav active">HOME</div><div class="nav">TRAIN</div><div class="nav">SIGNAL</div><div class="nav">CHART</div><div class="nav">MENU</div></div>
+</div>
+</body>
+</html>

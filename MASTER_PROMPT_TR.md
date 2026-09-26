@@ -1,0 +1,222 @@
+# Futures AI Mobile — Master Prompt
+
+FUTURES AI SIGNAL MOBILE — MASTER DEVELOPMENT PROMPT
+
+SCOPE
+Android mobile application for Binance USDT-M Futures only.
+SPOT SUPPORT IS STRICTLY EXCLUDED.
+No login/register screen. Use an animated splash.
+
+PURPOSE
+Build a professional Futures AI research, historical-training, multi-timeframe, backtesting, paper-trading and signal application. It must learn chronologically from historical data and produce explainable LONG/SHORT/WAIT signals with estimated entry, TP and SL. Never claim guaranteed profit.
+
+VISUAL DESIGN
+Keep the established mobile screen layout. Do NOT turn it into a desktop UI.
+Use the supplied neon-orbit references as decorative/animation inspiration:
+- near-black background
+- neon purple/blue/cyan/green/yellow/orange/red
+- central glowing core
+- circular orbit rings
+- moving particles and light trails
+- restrained glow
+Apply these decorations on top of the existing mobile screens.
+
+SPLASH
+Animated neon-orbit splash, about 1.5–2.5 seconds. No authentication.
+
+MAIN NAVIGATION
+Home, Training, Signals, Chart, Data, Models, Logs, Settings.
+Use compact mobile bottom navigation for primary destinations and a secondary menu/drawer for less frequent screens.
+
+HOME
+Show Futures AI title, LIVE status, selected Futures symbol, current price, DATA/MODELS/SIGNAL/STREAM states, active signal card and model status.
+
+TRAINING
+User selects Futures symbol, one or more timeframes and one or more model families.
+Supported timeframes: 1m, 3m, 5m, 15m, 30m, 1h, 4h, 1d.
+Allow single or multi-timeframe training.
+
+CHRONOLOGICAL LEARNING
+Start at the oldest valid data and progress toward the newest without future-data leakage.
+Example: 60 one-minute candles create one one-hour candle:
+OPEN = first OPEN
+HIGH = max HIGH
+LOW = min LOW
+CLOSE = last CLOSE
+VOLUME = sum
+Do not discard useful lower-timeframe information such as wick structure, volatility, momentum, volume acceleration and price path.
+
+MULTI-TIMEFRAME
+Support independent timeframe models plus a multi-timeframe consensus/ensemble layer.
+
+TRAINING PIPELINE
+1 Data check
+2 Validation/normalization
+3 Timeframe construction
+4 Feature engineering
+5 Indicator calculations
+6 Label generation
+7 Model training
+8 Validation
+9 Walk-forward evaluation
+10 Backtest
+11 Model evaluation
+12 Model checkpoint/registry
+13 Ready
+
+MODELS
+Classical ML: LightGBM, XGBoost, Random Forest, Extra Trees, Logistic Regression.
+Deep/time-series: MLP, LSTM, GRU, Temporal CNN, Transformer/time-series models.
+Use ensembles only where validation justifies them.
+
+MODEL TARGETS
+Possible outputs:
+LONG, SHORT, WAIT
+TP1 probability
+TP2 probability
+SL probability
+expected move
+expected duration
+market regime
+Do not rely only on UP/DOWN classification.
+
+SIGNAL EXAMPLE
+BTCUSDT
+LONG
+Score 88/100
+Entry 104250
+TP1 104720
+TP2 105180
+SL 103820
+TP1 probability 81%
+TP2 probability 63%
+SL probability 17%
+Expected duration 8–18 min
+Market regime BULLISH
+
+NEON ORBIT PROGRESS
+Create reusable component NeonOrbitProgress.
+Use it for downloads, sync, training, validation, backtest, model preparation and signal scanning.
+The percentage must appear in/over the center. Orbit rings and particles animate. Support 25/50/75/100% transitions.
+
+DATA STORAGE
+Do NOT use CSV as primary historical storage.
+Use Apache Parquet for time-series data and DuckDB and/or SQLite for metadata/state.
+Suggested:
+data/BTCUSDT/1m/
+data/BTCUSDT/5m/
+data/BTCUSDT/15m/
+data/BTCUSDT/1h/
+data/BTCUSDT/4h/
+data/BTCUSDT/1d/
+Prefer efficient partitioning by symbol/timeframe/date.
+
+DATA MANAGEMENT
+Allow all-assets or selected-assets downloads and all/selected timeframes.
+Controls: Download All, Download Selected, Pause, Resume, Cancel, Sync Missing.
+Synchronization must download only missing data.
+
+LIVE DATA
+Binance Futures WebSocket/API -> validation -> local cache/storage -> features -> indicators -> inference -> signal engine -> mobile UI.
+Historical and live pipelines must remain logically separated but compatible.
+
+CHART
+Professional mobile trading chart:
+candlestick, line, area, bar, Heikin Ashi, zoom, pan, crosshair, price/time labels, auto-scale, latest-price navigation and timeframe selection.
+
+DRAWING TOOLS
+Horizontal line, vertical line, trend line, ray, parallel channel, rectangle, circle, arrow, price range, date range and text.
+Drawings must be movable, editable, hideable and removable.
+
+PYTHON INDICATORS
+Indicators are calculated in Python, not rendered in Python.
+Standard interface:
+calculate_indicator(data, settings) -> result
+Support overlay and separate-panel indicators.
+Examples: EMA, VWAP, Bollinger Bands, SuperTrend, RSI, MACD, Stochastic, OBV.
+Custom Python indicators must be sandboxed/isolated; never execute arbitrary imported Python in the core Android process.
+
+SIGNAL SCANNER
+Animated Futures scanning state using the orbit visual language.
+Filters: minimum score, confidence, timeframe, LONG/SHORT, TP probability, risk/reward and market regime.
+
+SIGNAL HISTORY
+Store symbol, direction, score, entry, TP/SL, probabilities, result, duration, timestamp and model version.
+
+BACKTEST
+Account for Futures trading fees, slippage and funding where applicable.
+Show Gross PnL, Fees, Funding, Slippage and Net PnL.
+Evaluate precision, recall, F1, AUC where applicable, win rate, profit factor, expectancy, max drawdown, Sharpe, Sortino, average trade, average duration, TP1/TP2/SL hit rates, out-of-sample and walk-forward performance.
+
+NO DATA LEAKAGE
+Mandatory. Never allow future information into past training/features. Prefer chronological train/validation/test and walk-forward evaluation rather than random splitting.
+
+MODEL VERSIONING
+Never blindly overwrite old models.
+Store model version, symbol, timeframe, training cutoff, feature version, dataset version, metrics, configuration and timestamp.
+Reject demonstrably worse new models and retain the previous best model.
+
+NEW ASSET
+User can add another Futures asset later:
+check symbol -> download history -> validate -> build timeframes -> train -> validate -> backtest -> paper trade -> ready.
+
+PAPER TRADING
+Initial live execution should be paper trading only. Track virtual entry, TP, SL, exit, PnL, duration and result.
+
+LOGGING
+Extremely detailed and understandable. Log every important button click, user action, state transition, network operation, data operation, model operation and error.
+
+Categories:
+SYSTEM, UI, DATA, DOWNLOAD, SYNC, BINANCE, WEBSOCKET, DATABASE, PARQUET, FEATURE, INDICATOR, LABEL, TRAINING, VALIDATION, BACKTEST, MODEL, MODEL_REGISTRY, SIGNAL, RISK, API, ANDROID, NETWORK, PERFORMANCE, SECURITY, ERROR, CRITICAL.
+
+Every UI action should record context, e.g.
+UI-CLICK
+screen=TrainingScreen
+button=START_TRAINING
+symbol=BTCUSDT
+timeframe=5m
+trainingId=TR-000042
+
+ERROR CODES
+Use structured codes such as UI-1001, DATA-2001, NETWORK-3001, WS-3101, DB-4001, FEATURE-5001, TRAIN-6001, MODEL-7001, SIGNAL-8001, API-9001.
+Each error includes code, category, severity, timestamp, message, context, stack trace where available and retry/recovery information.
+
+LOG SCREEN
+Mobile log viewer with category/severity filters, search, timestamps, expandable details, copy and export.
+Export JSON, TXT and CSV.
+
+PERFORMANCE
+Never load entire historical datasets into RAM.
+Use streaming/chunk processing, efficient chart rendering, bounded log memory and lightweight inference.
+Separate heavy training from the Android UI process.
+
+LANGUAGES
+Kotlin: Android UI, navigation, settings, notifications, chart interaction, API/WebSocket client and local app state.
+Python: ML, deep learning, features, indicators, labeling, training, backtesting and inference.
+Rust only if profiling proves a data-processing bottleneck.
+Go only if a dedicated service/API layer is justified.
+Prefer the simplest architecture:
+Kotlin mobile app <-> service/API boundary <-> Python AI engine <-> Parquet + DuckDB/SQLite.
+
+SETTINGS
+Theme, animations, chart, indicators, signal thresholds, confidence, risk, notifications, data, training, models, logging, performance and network.
+Animation levels: Low, Medium, High.
+
+STYLE
+Inter or another modern sans-serif. Monospace for logs.
+Suggested colors:
+Purple #A855F7
+Blue #2563FF
+Cyan #00E5FF
+Green #39FF88
+Yellow #FFE600
+Orange #FF8A00
+Red #FF3158
+White #F8FAFC
+Cards are dark, rounded, subtly translucent, with restrained neon borders/glow.
+
+FINAL PRODUCT
+Futures only; mobile only; no login/register; animated splash; historical data; multi-timeframe training; ML/deep learning; Python indicators; professional chart; drawing tools; data manager; model registry; walk-forward validation; backtesting; paper trading; live data; explainable signals; TP/SL estimates; detailed logs; log export; customization; neon orbit UI.
+
+CRITICAL DESIGN RULE
+The supplied neon orbit images are visual/animation references. Keep the established mobile UI layout and simply apply these animated decorations and neon progress components to the mobile screens. Do not redesign the product as desktop software.
