@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Futures AI Mobile — Binance USDT-M Signals</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="desktop-wrapper">
+  <!-- Top Control Bar (Device Frame / Fullscreen Switcher) -->
+  <div class="top-control-bar">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#a855f7; box-shadow:0 0 8px #a855f7;"></span>
+      <span>Binance USDT-M Futures • Mobile Shell</span>
+    </div>
+    <button class="mode-toggle-btn" id="toggleDeviceModeBtn">Tam Ekran Yap</button>
+  </div>
+
+  <!-- Mobile Phone Frame (390 x 844) -->
+  <div class="phone" id="phoneContainer">
+    
+    <!-- Notch / Dynamic Island -->
+    <div class="phone-notch">
+      <div class="lens"></div>
+      <div class="speaker"></div>
+    </div>
+
+    <!-- Mobile Status Bar -->
+    <div class="phone-status-bar">
+      <span id="statusBarClock">09:41</span>
+      <div class="icons">
+        <span>5G</span>
+        <svg width="15" height="11" viewBox="0 0 24 16" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 21l7.03-3.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"/></svg>
+        <svg width="18" height="10" viewBox="0 0 24 12" fill="currentColor"><rect x="1" y="1" width="19" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="3" width="15" height="6" rx="1.5"/><rect x="21" y="4" width="2" height="4" rx="1"/></svg>
+      </div>
+    </div>
+
+    <!-- App Header -->
+    <div class="app-header">
+      <div class="brand-wrap">
+        <div class="app-title">FUTURES AI</div>
+        <div class="sub-badge">USDT-M</div>
+      </div>
+      <div class="status-live">
+        <div class="dot"></div>
+        <span>LIVE</span>
+      </div>
+    </div>
+
+    <!-- Asset Selector Bar (BTC, ETH, SOL, BNB, AVAX, XRP) -->
+    <div class="asset-selector-bar" id="assetSelectorBar">
+      <div class="asset-pill active" data-symbol="BTCUSDT">BTCUSDT</div>
+      <div class="asset-pill" data-symbol="ETHUSDT">ETHUSDT</div>
+      <div class="asset-pill" data-symbol="SOLUSDT">SOLUSDT</div>
+      <div class="asset-pill" data-symbol="BNBUSDT">BNBUSDT</div>
+      <div class="asset-pill" data-symbol="AVAXUSDT">AVAXUSDT</div>
+      <div class="asset-pill" data-symbol="XRPUSDT">XRPUSDT</div>
+    </div>
+
+    <!-- Screen Scroll Area -->
+    <div class="screen-container" id="screenContainer">
+
+      <!-- ================= PAGE 1: HOME ================= -->
+      <div class="page active" id="page-home">
+        
+        <!-- Live Ticker Stats Card -->
+        <div class="card" style="margin-top: 6px;">
+          <div class="card-label">
+            <span>BINANCE PERPETUAL TICKER</span>
+            <span id="tickerTime">Live</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div>
+              <div style="font-size: 26px; font-weight: 900; letter-spacing: -0.5px;" id="tickerPrice">$104,250.0</div>
+              <div style="font-size: 11px; color: var(--neon-green); font-weight: 700; margin-top:2px;" id="tickerChange">+2.84% (24s)</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size: 10px; color: var(--text-muted);">FONLAMA ORANI</div>
+              <div style="font-size: 13px; font-weight: 800; color: var(--neon-cyan);" id="tickerFunding">-0.0125%</div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-top:12px; font-size:11px; background:rgba(0,0,0,0.3); padding:8px 10px; border-radius:10px;">
+            <div><span style="color:var(--text-dim);">Açık Pozisyon (OI):</span> <b id="tickerOI" style="color:var(--text-white);">$2.84B</b></div>
+            <div><span style="color:var(--text-dim);">24s Hacim:</span> <b id="tickerVol" style="color:var(--text-white);">$14.2B</b></div>
+          </div>
+        </div>
+
+        <!-- System States Bar -->
+        <div class="system-states-bar">
+          <div class="state-chip">
+            <div class="k">DATA</div>
+            <div class="v">PARQUET</div>
+          </div>
+          <div class="state-chip">
+            <div class="k">MODELS</div>
+            <div class="v" id="modelsCountBadge">4 ACTIVE</div>
+          </div>
+          <div class="state-chip">
+            <div class="k">SIGNAL</div>
+            <div class="v">ACTIVE</div>
+          </div>
+          <div class="state-chip">
+            <div class="k">STREAM</div>
+            <div class="v" style="color:var(--neon-green)">24ms</div>
+          </div>
+        </div>
+
+        <!-- Neon Orbit Training Card (Direct Mockup Representation) -->
+        <div class="card cyan-card">
+          <div class="card-label">
+            <span>TRAINING PREVIEW</span>
+            <span style="color:var(--neon-purple); font-weight:800;">● ML CORE</span>
+          </div>
+          
+          <div class="orbit-wrapper" id="homeOrbitContainer">
+            <!-- NeonOrbitProgress renders here -->
+          </div>
+
+          <button class="btn btn-primary" id="btnQuickTrain">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Hızlı Çoklu Zaman Dilimi Eğitimi
+          </button>
+        </div>
+
+        <!-- Active Signal Card (Master Prompt Exact Format) -->
+        <div class="card green-card" id="homeSignalCard">
+          <div class="card-label">
+            <span>ACTIVE FUTURES SIGNAL</span>
+            <span style="color:var(--neon-green); font-weight:800;">CONFIRMED</span>
+          </div>
+
+          <div class="signal-badge-row">
+            <div>
+              <div class="signal-direction long" id="homeSigDirection">LONG</div>
+              <div style="font-size:12px; color:var(--text-muted); font-weight:700;" id="homeSigSymbol">BTCUSDT • 15m</div>
+            </div>
+            <div class="signal-score-badge" id="homeSigScore">Skor: 88/100</div>
+          </div>
+
+          <div class="signal-grid">
+            <div class="signal-metric">
+              <div class="m-label">GİRİŞ (ENTRY)</div>
+              <div class="m-val cyan" id="homeSigEntry">104,250 USDT</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">KALDIRAÇ (LEV)</div>
+              <div class="m-val yellow" id="homeSigLev">5x - 10x</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">HEDEF 1 (TP1)</div>
+              <div class="m-val green" id="homeSigTP1">104,720 (%81 Olasılık)</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">HEDEF 2 (TP2)</div>
+              <div class="m-val green" id="homeSigTP2">105,180 (%63 Olasılık)</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">ZARAR KES (SL)</div>
+              <div class="m-val red" id="homeSigSL">103,820 (%17 Olasılık)</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">RİSK / KAZANÇ (R:R)</div>
+              <div class="m-val" id="homeSigRR">1 : 2.85</div>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin: 6px 0;">
+            <span>Tahmini Süre: <b style="color:white;" id="homeSigDuration">8–18 dk</b></span>
+            <span>Rejim: <b style="color:var(--neon-green);" id="homeSigRegime">BULLISH EXPANSION</b></span>
+          </div>
+
+          <div class="signal-rationale" id="homeSigRationale">
+            15m FVG desteğinden retest + 4h EMA50 dinamik sekme + Negatif Fonlama Oranı (-0.021%) Short Squeeze tetiklemesi + RSI pozitif uyumsuzluk.
+          </div>
+
+          <button class="btn btn-cyan" id="btnExecutePaperHome" style="margin-top:12px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Paper Trading ile Tek Tıkla Uygula
+          </button>
+        </div>
+
+        <!-- Mini Training Progress Card -->
+        <div class="card">
+          <div class="card-label">
+            <span>EĞİTİM & VERİ SENKRONİZASYONU</span>
+            <span id="homeProgressPercent">72%</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="homeProgressBar" style="width: 72%;"></div>
+          </div>
+          <div style="font-size:10px; color:var(--text-dim); text-align:right;">
+            Parquet: data/BTCUSDT/15m/ • SQLite Sync OK
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= PAGE 2: TRAINING ================= -->
+      <div class="page" id="page-training">
+        <div class="card">
+          <div class="card-label">
+            <span>CHRONOLOGICAL MTF TRAINING</span>
+            <span style="color:var(--neon-cyan)">13-STEP PIPELINE</span>
+          </div>
+
+          <div style="font-size:11px; color:var(--text-muted); line-height:1.4; margin-bottom:12px;">
+            Geçmiş verilerden geleceğe doğru veri sızıntısız (no-leakage) kronolojik öğrenme ve çoklu zaman dilimi (MTF) ensemble eğitimi.
+          </div>
+
+          <!-- Timeframes Selector -->
+          <div class="card-label" style="margin-top:10px;">ZAMAN DİLİMLERİ (TIMEFRAMES)</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;" id="trainTfPills">
+            <span class="asset-pill active" data-tf="1m">1m</span>
+            <span class="asset-pill" data-tf="3m">3m</span>
+            <span class="asset-pill active" data-tf="5m">5m</span>
+            <span class="asset-pill active" data-tf="15m">15m</span>
+            <span class="asset-pill" data-tf="30m">30m</span>
+            <span class="asset-pill active" data-tf="1h">1h</span>
+            <span class="asset-pill active" data-tf="4h">4h</span>
+            <span class="asset-pill" data-tf="1d">1d</span>
+          </div>
+
+          <!-- Model Families Selector -->
+          <div class="card-label" style="margin-top:14px;">MODEL AİLELERİ (ENSEMBLE)</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px;">
+            <label style="display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.3); padding:8px; border-radius:8px;">
+              <input type="checkbox" checked value="LightGBM" class="model-check"> LightGBM
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.3); padding:8px; border-radius:8px;">
+              <input type="checkbox" checked value="XGBoost" class="model-check"> XGBoost
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.3); padding:8px; border-radius:8px;">
+              <input type="checkbox" checked value="Random Forest" class="model-check"> Random Forest
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.3); padding:8px; border-radius:8px;">
+              <input type="checkbox" checked value="LSTM" class="model-check"> LSTM Time-Series
+            </label>
+          </div>
+
+          <!-- Training Orbit Visualizer -->
+          <div class="orbit-wrapper" id="trainingOrbitContainer" style="margin-top:10px;">
+            <!-- Training Orbit Progress Component -->
+          </div>
+
+          <button class="btn btn-primary" id="btnStartFullTraining">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+            Eğitim Boru Hattını Başlat (13 Adım)
+          </button>
+        </div>
+
+        <!-- 13-Step Pipeline Card -->
+        <div class="card">
+          <div class="card-label">13 ADIMLI KRONOLOJİK BORU HATTI DURUMU</div>
+          <div class="pipeline-list" id="pipelineStepsList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Training Metrics Output Card -->
+        <div class="card green-card" id="trainingMetricsCard" style="display:none;">
+          <div class="card-label">EĞİTİM & DOĞRULAMA METRİKLERİ</div>
+          <div class="signal-grid">
+            <div class="signal-metric">
+              <div class="m-label">KAZANMA ORANI (WIN)</div>
+              <div class="m-val green" id="metricWinRate">68.4%</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">KÂR FAKTÖRÜ (PF)</div>
+              <div class="m-val yellow" id="metricPF">2.45</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">SHARPE ORANI</div>
+              <div class="m-val cyan" id="metricSharpe">1.92</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">MAX DRAWDOWN</div>
+              <div class="m-val red" id="metricMaxDD">-8.4%</div>
+            </div>
+          </div>
+          <div id="metricRegistryStatus" style="font-size:11px; margin-top:8px; color:#d8b4fe; background:rgba(0,0,0,0.4); padding:8px; border-radius:8px;"></div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 3: SIGNALS ================= -->
+      <div class="page" id="page-signals">
+        <div class="card">
+          <div class="card-label">
+            <span>FUTURES SİNYAL TARAYICI</span>
+            <span style="color:var(--neon-green)">● AKTİF TARAMA</span>
+          </div>
+
+          <div style="display:flex; gap:6px; margin-bottom:10px;">
+            <button class="asset-pill active" id="filterSigAll">Tümü</button>
+            <button class="asset-pill" id="filterSigLong">Sadece LONG</button>
+            <button class="asset-pill" id="filterSigShort">Sadece SHORT</button>
+          </div>
+
+          <button class="btn btn-cyan" id="btnScanNewSignal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+            Yeni Vadeli İşlem Sinyali Tara
+          </button>
+        </div>
+
+        <div id="signalsListContainer">
+          <!-- Active and historical signal cards injected here -->
+        </div>
+      </div>
+
+      <!-- ================= PAGE 4: CHART ================= -->
+      <div class="page" id="page-chart">
+        <div class="card" style="padding:10px;">
+          
+          <!-- Top Chart Control Bar -->
+          <div class="chart-controls-bar">
+            <div style="display:flex; gap:4px;">
+              <button class="chart-tf-btn active" data-tf="15m">15m</button>
+              <button class="chart-tf-btn" data-tf="1h">1h</button>
+              <button class="chart-tf-btn" data-tf="4h">4h</button>
+              <button class="chart-tf-btn" data-tf="1d">1d</button>
+            </div>
+            <div style="display:flex; gap:4px;">
+              <button class="chart-tf-btn active" id="btnChartTypeCandle">Mum</button>
+              <button class="chart-tf-btn" id="btnChartTypeHeikin">HA</button>
+              <button class="chart-tf-btn" id="btnChartTypeLine">Çizgi</button>
+            </div>
+          </div>
+
+          <!-- Drawing & Indicator Tools -->
+          <div class="chart-controls-bar" style="margin-top:4px;">
+            <div style="display:flex; gap:4px; font-size:9px;">
+              <button class="chart-tf-btn active" id="btnToggleEMA">EMA 20/50</button>
+              <button class="chart-tf-btn active" id="btnToggleRSI">RSI (14)</button>
+              <button class="chart-tf-btn active" id="btnToggleTargets">Sinyal TP/SL</button>
+              <button class="chart-tf-btn" id="btnToolHorizontal">Yatay Çizgi</button>
+            </div>
+          </div>
+
+          <!-- The Canvas Chart Container -->
+          <div class="chart-container">
+            <canvas id="mainChart"></canvas>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--text-muted); margin-top:6px; padding:0 4px;">
+            <span>Parite: <b style="color:var(--neon-cyan)" id="chartSymbolDisplay">BTCUSDT [PERP]</b></span>
+            <span>Yakınlaştır: Kaydır / Dokun</span>
+          </div>
+        </div>
+
+        <!-- Indicator Readings Card -->
+        <div class="card">
+          <div class="card-label">PYTHON HESAPLANAN GÖSTERGE DEĞERLERİ</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; font-size:11px;">
+            <div class="signal-metric">
+              <div class="m-label">RSI (14)</div>
+              <div class="m-val cyan" id="indRsiVal">58.4</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">EMA (20)</div>
+              <div class="m-val" style="color:#a855f7;" id="indEma20Val">104,110</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">EMA (50)</div>
+              <div class="m-val" style="color:#00e5ff;" id="indEma50Val">103,780</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 5: DATA MANAGER ================= -->
+      <div class="page" id="page-data">
+        <div class="card">
+          <div class="card-label">
+            <span>PARQUET VERİ YÖNETİCİSİ</span>
+            <span style="color:var(--neon-cyan)">BINANCE USDT-M</span>
+          </div>
+
+          <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
+            Birincil depolama Apache Parquet formatında <code>data/{symbol}/{timeframe}/</code> altında tutulur. SQLite ile eksik aralıklar (gaps) denetlenir.
+          </div>
+
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-cyan" id="btnSyncAllData" style="font-size:11px; padding:8px;">Eksikleri Senkronize Et</button>
+            <button class="btn btn-outline" id="btnRefreshDataList" style="font-size:11px; padding:8px;">Yenile</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:12px;">
+          <div class="card-label">PARQUET BÖLÜM DURUMLARI (PARTITIONS)</div>
+          <div id="dataStatusList" style="display:flex; flex-direction:column; gap:6px; max-height:360px; overflow-y:auto;">
+            <!-- Data partitions rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 6: MODEL REGISTRY ================= -->
+      <div class="page" id="page-models">
+        <div class="card">
+          <div class="card-label">
+            <span>MODEL KAYIT SİSTEMİ (REGISTRY)</span>
+            <span style="color:var(--neon-purple)">VERSİYONLAR</span>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">
+            Master Prompt kuralı: Kötü performans veren yeni modeller otomatik olarak REDDEDİLİR (REJECTED) ve önceki şampiyon model korunur.
+          </div>
+        </div>
+
+        <div id="modelRegistryList">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- ================= PAGE 7: BACKTEST & PAPER TRADING ================= -->
+      <div class="page" id="page-backtest">
+        <div class="card">
+          <div class="card-label">
+            <span>VADELİ GERİYE DÖNÜK TEST (BACKTEST)</span>
+            <span style="color:var(--neon-green)">FEES + SLIPPAGE + FUNDING</span>
+          </div>
+
+          <div class="signal-grid" style="grid-template-columns:1fr 1fr 1fr; margin-bottom:8px;">
+            <div>
+              <div class="card-label">BAKİYE ($)</div>
+              <input type="number" id="btCapital" value="10000" style="width:100%; background:#000; border:1px solid var(--border-subtle); color:white; padding:6px; border-radius:8px; font-size:12px;">
+            </div>
+            <div>
+              <div class="card-label">KALDIRAÇ</div>
+              <input type="number" id="btLeverage" value="5" min="1" max="20" style="width:100%; background:#000; border:1px solid var(--border-subtle); color:white; padding:6px; border-radius:8px; font-size:12px;">
+            </div>
+            <div>
+              <div class="card-label">RİSK %</div>
+              <input type="number" id="btRiskPct" value="2.0" step="0.5" style="width:100%; background:#000; border:1px solid var(--border-subtle); color:white; padding:6px; border-radius:8px; font-size:12px;">
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="btnRunBacktest">
+            Geriye Dönük Testi Çalıştır (Futures Ücretleri Dahil)
+          </button>
+        </div>
+
+        <!-- Backtest Metrics Result -->
+        <div class="card green-card" id="btResultCard">
+          <div class="card-label">BACKTEST SONUÇLARI (BINANCE USDT-M)</div>
+          <div class="signal-grid">
+            <div class="signal-metric">
+              <div class="m-label">NET KÂR/ZARAR</div>
+              <div class="m-val green" id="btNetPnl">+$3,420.50 (+34.2%)</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">KAZANMA ORANI</div>
+              <div class="m-val green" id="btWinRate">69.2%</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">KÂR FAKTÖRÜ</div>
+              <div class="m-val yellow" id="btPF">2.54</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">MAX DRAWDOWN</div>
+              <div class="m-val red" id="btMaxDD">-7.8%</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">KOMİSYON & KAYMA</div>
+              <div class="m-val" id="btFees">$184.20</div>
+            </div>
+            <div class="signal-metric">
+              <div class="m-label">SHARPE / SORTINO</div>
+              <div class="m-val cyan" id="btSharpe">2.14 / 3.02</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paper Trading Virtual Wallet -->
+        <div class="card cyan-card">
+          <div class="card-label">
+            <span>PAPER TRADING (SANAL CÜZDAN)</span>
+            <span style="color:var(--neon-cyan)">CANLI SİMÜLASYON</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0;">
+            <div>
+              <div style="font-size:10px; color:var(--text-muted);">TOPLAM SANAL VARLIK</div>
+              <div style="font-size:22px; font-weight:800; color:var(--neon-green);" id="ptEquity">$10,070.98</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:10px; color:var(--text-muted);">KULLANILAN MARJİN</div>
+              <div style="font-size:14px; font-weight:700; color:var(--neon-yellow);" id="ptMargin">$200.00</div>
+            </div>
+          </div>
+
+          <div class="card-label" style="margin-top:10px;">AÇIK SANAL POZİSYONLAR</div>
+          <div id="paperPositionsList" style="display:flex; flex-direction:column; gap:6px;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 8: LOGS ================= -->
+      <div class="page" id="page-logs">
+        <div class="card">
+          <div class="card-label">
+            <span>DETAYLI SİSTEM & HATA GÜNLÜĞÜ</span>
+            <span style="color:var(--neon-yellow)">YAPILANDIRILMIŞ</span>
+          </div>
+
+          <div style="display:flex; gap:4px; margin-bottom:6px;">
+            <input type="text" id="logSearchInput" placeholder="Günlüklerde ara..." style="flex:1; background:#000; border:1px solid var(--border-subtle); color:white; padding:6px 10px; border-radius:8px; font-size:11px;">
+            <select id="logCategorySelect" style="background:#000; border:1px solid var(--border-subtle); color:white; padding:4px; border-radius:8px; font-size:10px;">
+              <option value="ALL">Tüm Kategoriler</option>
+              <option value="UI">UI</option>
+              <option value="DATA">DATA</option>
+              <option value="TRAINING">TRAINING</option>
+              <option value="SIGNAL">SIGNAL</option>
+              <option value="RISK">RISK</option>
+              <option value="ERROR">ERROR</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-outline" id="btnExportLogsJson" style="font-size:10px; padding:6px;">İndir JSON</button>
+            <button class="btn btn-outline" id="btnExportLogsTxt" style="font-size:10px; padding:6px;">İndir TXT</button>
+            <button class="btn btn-outline" id="btnExportLogsCsv" style="font-size:10px; padding:6px;">İndir CSV</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:10px;">
+          <div class="logs-list" id="structuredLogsList">
+            <!-- Dynamic logs -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 9: SETTINGS ================= -->
+      <div class="page" id="page-settings">
+        <div class="card">
+          <div class="card-label">UYGULAMA VE RİSK AYARLARI</div>
+
+          <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px; font-size:12px;">
+            <div>
+              <div class="card-label">ANİMASYON SEVİYESİ</div>
+              <div style="display:flex; gap:6px;">
+                <button class="asset-pill">Düşük</button>
+                <button class="asset-pill active">Orta</button>
+                <button class="asset-pill">Yüksek (Neon)</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="card-label">MAKSİMUM ÖNERİLEN KALDIRAÇ</div>
+              <select style="width:100%; background:#000; border:1px solid var(--border-subtle); color:white; padding:8px; border-radius:8px;">
+                <option value="5">5x (Muhafazakar)</option>
+                <option value="10" selected>10x (Önerilen)</option>
+                <option value="20">20x (Agresif)</option>
+              </select>
+            </div>
+
+            <div>
+              <div class="card-label">MİNİMUM SİNYAL GÜVEN SKORU</div>
+              <select style="width:100%; background:#000; border:1px solid var(--border-subtle); color:white; padding:8px; border-radius:8px;">
+                <option value="75">%75 ve Üzeri</option>
+                <option value="80" selected>%80 ve Üzeri (Filtreli)</option>
+                <option value="85">%85 ve Üzeri (Yüksek Olasılık)</option>
+              </select>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.4); padding:10px; border-radius:10px; font-size:10px; color:var(--text-dim); line-height:1.4;">
+              FUTURES AI, yalnızca Binance USDT-M Vadeli İşlemler piyasasında analiz ve sinyal üretir. Spot piyasayı kesinlikle desteklemez. Yatırım tavsiyesi içermez.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Secondary Menu Drawer -->
+    <div class="menu-drawer" id="menuDrawer">
+      <div class="menu-header">
+        <div class="menu-title">TÜM MODÜLLER</div>
+        <button class="menu-close-btn" id="btnCloseMenu">✕</button>
+      </div>
+
+      <div class="menu-list">
+        <div class="menu-item" data-goto="page-data">
+          <span>📁 Parquet Veri Yöneticisi</span>
+          <span style="color:var(--neon-cyan)">data/{symbol}/{tf}</span>
+        </div>
+        <div class="menu-item" data-goto="page-models">
+          <span>🧠 Model Kayıt Defteri (Registry)</span>
+          <span style="color:var(--neon-purple)">v1.4.2 Active</span>
+        </div>
+        <div class="menu-item" data-goto="page-backtest">
+          <span>📊 Backtest & Paper Trading</span>
+          <span style="color:var(--neon-green)">Futures Ücretleri</span>
+        </div>
+        <div class="menu-item" data-goto="page-logs">
+          <span>📋 Yapılandırılmış Günlükler (Logs)</span>
+          <span style="color:var(--neon-yellow)">UI-1001 / JSON / CSV</span>
+        </div>
+        <div class="menu-item" data-goto="page-settings">
+          <span>⚙️ Ayarlar & Risk Yönetimi</span>
+          <span style="color:var(--text-muted)">Kaldıraç & Tema</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Matching mobile_mockup.html) -->
+    <div class="bottom-nav">
+      <div class="nav-item active" data-tab="page-home">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>HOME</span>
+      </div>
+      <div class="nav-item" data-tab="page-training">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span>TRAIN</span>
+      </div>
+      <div class="nav-item" data-tab="page-signals">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span>SIGNAL</span>
+      </div>
+      <div class="nav-item" data-tab="page-chart">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>CHART</span>
+      </div>
+      <div class="nav-item" id="navItemMenu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span>MENU</span>
+      </div>
+    </div>
+
+    <!-- Animated Neon Orbit Splash Screen (1.5 - 2.5s) -->
+    <div class="splash-overlay" id="splashOverlay">
+      <div class="orbit-box" style="width: 200px; height: 200px;">
+        <div class="orbit-particle p1"></div>
+        <div class="orbit-particle p2"></div>
+        <div class="orbit-particle p3"></div>
+        <div class="orbit-core"></div>
+        <div class="orbit-percent" style="font-size:18px; letter-spacing:1px; color:#00e5ff;">AI</div>
+      </div>
+      <div class="splash-brand">FUTURES AI</div>
+      <div class="splash-subtitle">Binance USDT-M Futures Engine</div>
+      <div style="margin-top:15px; font-size:10px; color:var(--neon-green); font-weight:700;">● BAŞLATILIYOR...</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/js/orbit.js"></script>
+<script src="/js/chart.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
