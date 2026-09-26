@@ -4,10 +4,19 @@ on:
   push:
     branches:
       - main
+      - "arena/**"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Sürüm numarası (örn: 1.0.1) - boş bırakılırsa build.gradle.kts'deki versionName kullanılır"
+        required: false
+        default: ""
 
 permissions:
   contents: write
+
+env:
+  VERSION: ${{ github.event.inputs.version || '' }}
 
 jobs:
   build:
@@ -18,14 +27,57 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Resolve version
+        run: |
+          if [ -z "$VERSION" ]; then
+            VERSION=$(grep -oE 'versionName = "[^"]+"' android/app/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          fi
+          if [ -z "$VERSION" ]; then
+            echo "::error::Surum belirlenemedi"
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Resolved VERSION=$VERSION"
+
       - name: Set up Java JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Setup Android SDK (runner preinstalled SDK + packages)
+        run: |
+          set -x
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          echo "SDK_ROOT=$SDK_ROOT"
+          ls -la "$SDK_ROOT" || true
+          echo "sdk.dir=$SDK_ROOT" > android/local.properties
+
+          SDKMGR="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMGR" ]; then
+            SDKMGR=$(ls -d "$SDK_ROOT"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort | tail -1 || true)
+          fi
+
+          if [ -x "$SDKMGR" ]; then
+            echo "Using sdkmanager: $SDKMGR"
+            yes | "$SDKMGR" --licenses > /dev/null 2>&1 || true
+            "$SDKMGR" "platforms;android-34" "build-tools;34.0.0" \
+              || echo "::warning::sdkmanager paket kurulumu hata verdi (mevcut olabilir)"
+          else
+            echo "::warning::sdkmanager bulunamadi, AGP otomatik kuruluma birakildi"
+          fi
+
+          echo "--- Installed platforms ---"
+          ls "$SDK_ROOT/platforms" 2>/dev/null || echo "(platforms listing unavailable)"
+          ls "$SDK_ROOT/build-tools" 2>/dev/null || true
+
+      - name: Bundle Web App into Android assets
+        run: |
+          rm -rf android/app/src/main/assets/www
+          mkdir -p android/app/src/main/assets/www
+          cp -r web/* android/app/src/main/assets/www/
+          echo "=== Bundled web assets ==="
+          find android/app/src/main/assets/www -type f | sort
 
       - name: Download Gradle & Compile Android APK
         working-directory: android
@@ -35,36 +87,54 @@ jobs:
           unzip -q gradle-8.7-bin.zip
           export PATH=$PWD/gradle-8.7/bin:$PATH
           gradle -v
-          
-          echo "=== 2. Android APK Derleniyor ==="
-          sed -i 's/ic_launcher_round/ic_launcher/g' app/src/main/AndroidManifest.xml || true
-          gradle assembleDebug --stacktrace --no-daemon
+
+          echo "=== 2. Sürüm damgalanıyor: $VERSION ==="
+          sed -i "s/versionName = \".*\"/versionName = \"${VERSION}\"/" app/build.gradle.kts
+          sed -i "s/versionCode = [0-9]*/versionCode = ${GITHUB_RUN_NUMBER}/" app/build.gradle.kts
+          grep -n "version" app/build.gradle.kts | head -5
+
+          echo "=== 3. Android APK Derleniyor ==="
+          set -o pipefail
+          if ! gradle assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log; then
+            echo "::error::Gradle assembleDebug BASARISIZ - asagida son hatalar"
+            grep -n -E "FAILURE:|What went wrong|^\s*e: |error:|Execution failed" build.log | tail -15 | tr '\n' '|' | sed 's/::/__/g' | cut -c1-2000 | sed 's/^/::error::LOG /' || true
+            tail -n 30 build.log | tr '\n' '|' | sed 's/::/__/g' | cut -c1-2000 | sed 's/^/::error::TAIL /' || true
+            exit 1
+          fi
+          echo "=== BUILD OK ==="
 
       - name: Prepare APK Artifact
         run: |
           mkdir -p release_apk
-          find android/app/build/outputs/apk -name "*.apk" -exec cp {} release_apk/FuturesAI-v1.0.0.apk \; || true
+          APK_SRC=$(find android/app/build/outputs/apk -name "*.apk" | head -1)
+          if [ -z "$APK_SRC" ]; then
+            echo "::error::APK bulunamadi: android/app/build/outputs/apk altinda .apk yok"
+            find android/app/build/outputs -type f | head -20 || true
+            exit 1
+          fi
+          cp "$APK_SRC" "release_apk/FuturesAI-v${VERSION}.apk"
           ls -la release_apk/
 
       - name: Upload APK as Workflow Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FuturesAI-v1.0.0-APK
-          path: release_apk/FuturesAI-v1.0.0.apk
+          name: FuturesAI-v${{ env.VERSION }}-APK
+          path: release_apk/FuturesAI-v${{ env.VERSION }}.apk
           retention-days: 30
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.0.0
-          name: "Futures AI Mobile v1.0.0 (Binance USDT-M)"
+          tag_name: v${{ env.VERSION }}
+          name: "Futures AI Mobile v${{ env.VERSION }} (Binance USDT-M)"
           body: |
-            ### Futures AI Mobile v1.0.0 APK
+            ### Futures AI Mobile v${{ env.VERSION }} APK
             - Binance USDT-M Futures Yapay Zeka Mobil Uygulaması
             - 13 Adımlı Kronolojik Öğrenme Pipeline
             - SMC Likidite, Fair Value Gap (FVG), Fonlama Sıkışması Analizi
             - Canlı Mum Grafiği & Çizim Araçları
-          files: release_apk/FuturesAI-v1.0.0.apk
+
+            **Kurulum:** APK dosyasını indirip telefonunuza kurun (bilinmeyen kaynaklara izin verin).
+          files: release_apk/FuturesAI-v${{ env.VERSION }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
